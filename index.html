@@ -350,6 +350,94 @@
             100% { transform: translate(45px, -30px); }
         }
 
+        .thumb-invader {
+            position: absolute;
+            top: 46px;
+            left: 50%;
+            width: 4px;
+            height: 4px;
+            margin-left: -22px;
+            background: transparent;
+            box-shadow:
+                8px 0 #ff00aa, 32px 0 #ff00aa,
+                12px 4px #ff00aa, 28px 4px #ff00aa,
+                8px 8px #ff00aa, 12px 8px #ff00aa, 16px 8px #ff00aa, 20px 8px #ff00aa, 24px 8px #ff00aa, 28px 8px #ff00aa, 32px 8px #ff00aa,
+                4px 12px #ff00aa, 8px 12px #ff00aa, 16px 12px #ff00aa, 20px 12px #ff00aa, 24px 12px #ff00aa, 32px 12px #ff00aa, 36px 12px #ff00aa,
+                0 16px #ff00aa, 4px 16px #ff00aa, 8px 16px #ff00aa, 12px 16px #ff00aa, 16px 16px #ff00aa, 20px 16px #ff00aa, 24px 16px #ff00aa, 28px 16px #ff00aa, 32px 16px #ff00aa, 36px 16px #ff00aa, 40px 16px #ff00aa,
+                0 20px #ff00aa, 8px 20px #ff00aa, 12px 20px #ff00aa, 16px 20px #ff00aa, 20px 20px #ff00aa, 24px 20px #ff00aa, 28px 20px #ff00aa, 32px 20px #ff00aa, 40px 20px #ff00aa,
+                0 24px #ff00aa, 8px 24px #ff00aa, 32px 24px #ff00aa, 40px 24px #ff00aa,
+                12px 28px #ff00aa, 16px 28px #ff00aa, 24px 28px #ff00aa, 28px 28px #ff00aa;
+            filter: drop-shadow(0 0 5px #ff00aa);
+            animation: invaderStep 3s ease-in-out infinite;
+        }
+
+        @keyframes invaderStep {
+            0%, 100% { transform: translate(-30px, 0); }
+            50% { transform: translate(30px, 14px); }
+        }
+
+        .thumb-invader-2 {
+            position: absolute;
+            top: 18px;
+            left: 28%;
+            width: 3px;
+            height: 3px;
+            background: transparent;
+            box-shadow:
+                9px 0 #00ffff, 12px 0 #00ffff,
+                6px 3px #00ffff, 9px 3px #00ffff, 12px 3px #00ffff, 15px 3px #00ffff,
+                3px 6px #00ffff, 6px 6px #00ffff, 9px 6px #00ffff, 12px 6px #00ffff, 15px 6px #00ffff, 18px 6px #00ffff,
+                0 9px #00ffff, 3px 9px #00ffff, 9px 9px #00ffff, 12px 9px #00ffff, 18px 9px #00ffff, 21px 9px #00ffff,
+                0 12px #00ffff, 3px 12px #00ffff, 6px 12px #00ffff, 9px 12px #00ffff, 12px 12px #00ffff, 15px 12px #00ffff, 18px 12px #00ffff, 21px 12px #00ffff,
+                6px 15px #00ffff, 15px 15px #00ffff,
+                3px 18px #00ffff, 9px 18px #00ffff, 12px 18px #00ffff, 18px 18px #00ffff,
+                0 21px #00ffff, 6px 21px #00ffff, 15px 21px #00ffff, 21px 21px #00ffff;
+            filter: drop-shadow(0 0 4px #00ffff);
+            animation: invaderStep2 3s ease-in-out infinite;
+        }
+
+        @keyframes invaderStep2 {
+            0%, 100% { transform: translate(24px, 0); }
+            50% { transform: translate(-24px, 10px); }
+        }
+
+        .thumb-invader-ship {
+            position: absolute;
+            bottom: 36px;
+            left: 50%;
+            width: 40px;
+            height: 18px;
+            margin-left: -20px;
+            background: #00ffff;
+            clip-path: polygon(0 100%, 15% 40%, 44% 40%, 50% 0, 56% 40%, 85% 40%, 100% 100%);
+            filter: drop-shadow(0 0 8px #00ffff);
+            animation: invaderShipSlide 3s ease-in-out infinite;
+        }
+
+        @keyframes invaderShipSlide {
+            0%, 100% { transform: translateX(-42px); }
+            50% { transform: translateX(42px); }
+        }
+
+        .thumb-invader-laser {
+            position: absolute;
+            bottom: 58px;
+            left: 50%;
+            width: 3px;
+            height: 24px;
+            margin-left: -1.5px;
+            background: #00ffff;
+            box-shadow: 0 0 10px #00ffff;
+            animation: invaderLaserFire 1.5s linear infinite;
+        }
+
+        @keyframes invaderLaserFire {
+            0% { transform: translateY(0); opacity: 0; }
+            8% { opacity: 1; }
+            85% { transform: translateY(-130px); opacity: 1; }
+            100% { transform: translateY(-140px); opacity: 0; }
+        }
+
         footer {
             border-top: 1px solid rgba(0,255,255,0.15);
         }
@@ -460,6 +548,26 @@
                     <p class="text-gray-400 text-sm mb-5">
                         Suba pulando de plataforma em plataforma o mais alto possível. Cuidado com as que se quebram,
                         aproveite as molas turbo e não caia da tela.
+                    </p>
+                    <span class="btn-neon btn-neon-pink text-sm">Jogar Agora</span>
+                </div>
+            </a>
+
+            <a href="neon_invaders/index.html" class="game-card group">
+                <div class="game-thumb">
+                    <div class="thumb-grid-lines"></div>
+                    <div class="thumb-invader"></div>
+                    <div class="thumb-invader-2"></div>
+                    <div class="thumb-invader-laser"></div>
+                    <div class="thumb-invader-ship"></div>
+                </div>
+                <div class="card-body">
+                    <span class="tag" style="color:#00ffff;">SHOOTER</span>
+                    <span class="tag" style="color:#ff00aa;">ARCADE</span>
+                    <h3 class="text-xl font-bold text-glow-cyan mb-2">NEON INVADERS</h3>
+                    <p class="text-gray-400 text-sm mb-5">
+                        Defenda a Terra das ondas de invasores neon. Atire, proteja-se atrás dos escudos,
+                        persiga o disco voador bônus e sobreviva ao avanço alienígena.
                     </p>
                     <span class="btn-neon btn-neon-pink text-sm">Jogar Agora</span>
                 </div>
