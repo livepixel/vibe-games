@@ -1,0 +1,289 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>VibeGames - Jogos Vibe Codados</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; }
+
+        body {
+            margin: 0;
+            background-color: #050510;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+        }
+
+        .text-glow-cyan {
+            text-shadow: 0 0 10px #00ffff, 0 0 25px #00ffff, 0 0 45px rgba(0,255,255,0.5);
+        }
+
+        .text-glow-pink {
+            text-shadow: 0 0 10px #ff00aa, 0 0 25px #ff00aa;
+        }
+
+        #hero {
+            position: relative;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            overflow: hidden;
+            padding: 20px;
+        }
+
+        #hero-grid {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,255,0.08) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,255,0.08) 1px, transparent 1px);
+            background-size: 60px 60px;
+            transform: perspective(400px) rotateX(60deg) scale(2);
+            transform-origin: bottom;
+            animation: gridMove 6s linear infinite;
+            opacity: 0.6;
+        }
+
+        @keyframes gridMove {
+            from { background-position: 0 0; }
+            to { background-position: 0 60px; }
+        }
+
+        #hero-glow {
+            position: absolute;
+            top: -20%;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 900px;
+            height: 900px;
+            max-width: 150vw;
+            max-height: 150vw;
+            background: radial-gradient(circle, rgba(0,255,255,0.15) 0%, rgba(255,0,170,0.08) 40%, transparent 70%);
+            filter: blur(10px);
+            pointer-events: none;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+        }
+
+        .btn-neon {
+            display: inline-block;
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 14px 36px;
+            font-size: 18px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            text-decoration: none;
+            box-shadow: 0 0 15px #00ffff inset, 0 0 20px #00ffff;
+            transition: all 0.2s;
+        }
+
+        .btn-neon:hover {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 25px #00ffff inset, 0 0 40px #00ffff;
+        }
+
+        .btn-neon-pink {
+            color: #ff00aa;
+            border-color: #ff00aa;
+            box-shadow: 0 0 15px #ff00aa inset, 0 0 20px #ff00aa;
+        }
+
+        .btn-neon-pink:hover {
+            background: #ff00aa;
+            color: #000;
+            box-shadow: 0 0 25px #ff00aa inset, 0 0 40px #ff00aa;
+        }
+
+        .bounce-down {
+            animation: bounceDown 2s ease-in-out infinite;
+        }
+
+        @keyframes bounceDown {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(10px); }
+        }
+
+        .game-card {
+            position: relative;
+            border: 1px solid rgba(0,255,255,0.3);
+            border-radius: 16px;
+            overflow: hidden;
+            background: linear-gradient(180deg, rgba(10,10,25,0.9), rgba(5,5,16,0.95));
+            transition: transform 0.25s, box-shadow 0.25s, border-color 0.25s;
+        }
+
+        .game-card:hover {
+            transform: translateY(-6px);
+            border-color: rgba(0,255,255,0.8);
+            box-shadow: 0 10px 30px rgba(0,255,255,0.25);
+        }
+
+        .game-thumb {
+            position: relative;
+            height: 220px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: radial-gradient(circle at 50% 30%, #101025, #050510);
+            overflow: hidden;
+        }
+
+        .thumb-paddle {
+            position: absolute;
+            bottom: 30px;
+            width: 70px;
+            height: 12px;
+            background: #00ffff;
+            border-radius: 6px;
+            box-shadow: 0 0 15px #00ffff;
+            animation: paddleSlide 2.4s ease-in-out infinite;
+        }
+
+        @keyframes paddleSlide {
+            0%, 100% { transform: translateX(-50px); }
+            50% { transform: translateX(50px); }
+        }
+
+        .thumb-ball {
+            position: absolute;
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            background: #ff00aa;
+            box-shadow: 0 0 15px #ff00aa;
+            animation: ballBounce 2.4s ease-in-out infinite;
+        }
+
+        @keyframes ballBounce {
+            0% { transform: translate(-50px, -80px); }
+            25% { transform: translate(0px, 20px); }
+            50% { transform: translate(50px, -80px); }
+            75% { transform: translate(0px, 20px); }
+            100% { transform: translate(-50px, -80px); }
+        }
+
+        .thumb-grid-lines {
+            position: absolute;
+            inset: 0;
+            background-image:
+                linear-gradient(rgba(0,255,255,0.12) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(0,255,255,0.12) 1px, transparent 1px);
+            background-size: 30px 30px;
+        }
+
+        .card-body {
+            padding: 20px;
+        }
+
+        .tag {
+            display: inline-block;
+            font-size: 11px;
+            letter-spacing: 1px;
+            padding: 4px 10px;
+            border-radius: 999px;
+            border: 1px solid currentColor;
+            margin-right: 6px;
+            margin-bottom: 10px;
+        }
+
+        .coming-soon-card {
+            border: 1px dashed rgba(255,255,255,0.25);
+            border-radius: 16px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 340px;
+            color: rgba(255,255,255,0.4);
+            text-align: center;
+            padding: 30px;
+        }
+
+        footer {
+            border-top: 1px solid rgba(0,255,255,0.15);
+        }
+    </style>
+</head>
+<body>
+
+    <section id="hero">
+        <div id="hero-grid"></div>
+        <div id="hero-glow"></div>
+
+        <div class="hero-content">
+            <p class="tracking-[6px] text-cyan-300 text-xs md:text-sm mb-4">BEM-VINDO AO</p>
+            <h1 class="text-5xl md:text-8xl font-black mb-6 text-glow-cyan">VIBE<span class="text-glow-pink" style="color:#ff00aa;">GAMES</span></h1>
+            <p class="max-w-xl mx-auto text-gray-300 text-sm md:text-base leading-relaxed mb-10 px-2">
+                Jogos vibe codados onde o único critério é a criatividade. Aqui você encontrará jogos que exploram
+                novas ideias, mecânicas inovadoras e experiências únicas. Cada jogo é uma oportunidade de mergulhar
+                em mundos diferentes e descobrir o que a criatividade pode oferecer.
+            </p>
+            <a href="#games" class="btn-neon">Explorar Jogos</a>
+        </div>
+
+        <a href="#games" class="absolute bottom-10 left-1/2 -translate-x-1/2 text-cyan-300 bounce-down z-10" aria-label="Rolar para os jogos">
+            <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <path d="M12 5v14M5 12l7 7 7-7"/>
+            </svg>
+        </a>
+    </section>
+
+    <section id="games" class="max-w-6xl mx-auto px-6 py-20">
+        <div class="text-center mb-14">
+            <p class="tracking-[6px] text-pink-300 text-xs md:text-sm mb-3" style="color:#ff00aa;">CATÁLOGO</p>
+            <h2 class="text-3xl md:text-5xl font-black text-glow-cyan">NOSSOS JOGOS</h2>
+        </div>
+
+        <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-8">
+            <a href="neon_juggle/index.html" class="game-card group">
+                <div class="game-thumb">
+                    <div class="thumb-grid-lines"></div>
+                    <div class="thumb-ball"></div>
+                    <div class="thumb-paddle"></div>
+                </div>
+                <div class="card-body">
+                    <span class="tag" style="color:#00ffff;">ARCADE</span>
+                    <span class="tag" style="color:#ff00aa;">REFLEXOS</span>
+                    <h3 class="text-xl font-bold text-glow-cyan mb-2">NEON JUGGLE</h3>
+                    <p class="text-gray-400 text-sm mb-5">
+                        Mantenha as bolinhas neon no ar rebatendo-as com sua plataforma. Ative o modo Overdrive
+                        e sobreviva ao caos crescente de formas e efeitos.
+                    </p>
+                    <span class="btn-neon btn-neon-pink text-sm">Jogar Agora</span>
+                </div>
+            </a>
+
+            <div class="coming-soon-card">
+                <div class="text-4xl mb-4">🎮</div>
+                <h3 class="font-bold tracking-widest mb-2">EM BREVE</h3>
+                <p class="text-xs">Novos jogos estão sendo codados na vibe certa. Volte em breve.</p>
+            </div>
+
+            <div class="coming-soon-card">
+                <div class="text-4xl mb-4">✨</div>
+                <h3 class="font-bold tracking-widest mb-2">EM BREVE</h3>
+                <p class="text-xs">Mais mecânicas, mais criatividade, mais experiências únicas.</p>
+            </div>
+        </div>
+    </section>
+
+    <footer class="text-center py-8 text-gray-500 text-xs">
+        <p>VibeGames &middot; Feito com criatividade e vibe coding</p>
+    </footer>
+
+</body>
+</html>
