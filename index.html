@@ -441,6 +441,65 @@
         footer {
             border-top: 1px solid rgba(0,255,255,0.15);
         }
+
+        .thumb-rythm {
+            position: absolute;
+            inset: 0;
+            overflow: hidden;
+        }
+
+        .thumb-rythm-lane {
+            position: absolute;
+            bottom: 0;
+            width: 24%;
+            height: 100%;
+            opacity: 0.08;
+        }
+        .thumb-rythm-lane:nth-child(1) { left: 8%; background: #00ffff; }
+        .thumb-rythm-lane:nth-child(2) { left: 32%; background: #ff00aa; }
+        .thumb-rythm-lane:nth-child(3) { left: 56%; background: #ffee00; }
+        .thumb-rythm-lane:nth-child(4) { left: 80%; background: #39ff88; }
+
+        .thumb-rythm-hit {
+            position: absolute;
+            bottom: 60px;
+            left: 0;
+            right: 0;
+            height: 3px;
+            background: linear-gradient(90deg, #00ffff, #ff00aa, #ffee00, #39ff88);
+            box-shadow: 0 0 12px rgba(255,255,255,0.6);
+            animation: hitPulse 0.5s ease-in-out infinite alternate;
+        }
+
+        @keyframes hitPulse {
+            from { box-shadow: 0 0 8px rgba(255,255,255,0.4); }
+            to { box-shadow: 0 0 20px rgba(255,255,255,0.9); }
+        }
+
+        .thumb-rythm-note {
+            position: absolute;
+            width: 14px;
+            height: 14px;
+            border-radius: 2px;
+            transform: rotate(45deg);
+            animation: noteFloat 1.6s linear infinite;
+        }
+
+        .thumb-rythm-note:nth-child(5) { left: 15%; bottom: 20px; background: #00ffff; box-shadow: 0 0 10px #00ffff; animation-delay: 0s; }
+        .thumb-rythm-note:nth-child(6) { left: 38%; bottom: 20px; background: #ff00aa; box-shadow: 0 0 10px #ff00aa; animation-delay: 0.4s; }
+        .thumb-rythm-note:nth-child(7) { left: 62%; bottom: 20px; background: #ffee00; box-shadow: 0 0 10px #ffee00; animation-delay: 0.8s; }
+        .thumb-rythm-note:nth-child(8) { left: 86%; bottom: 20px; background: #39ff88; box-shadow: 0 0 10px #39ff88; animation-delay: 1.2s; }
+        .thumb-rythm-note:nth-child(9) { left: 15%; bottom: 20px; background: #00ffff; box-shadow: 0 0 10px #00ffff; animation-delay: 1.6s; }
+        .thumb-rythm-note:nth-child(10) { left: 38%; bottom: 20px; background: #ff00aa; box-shadow: 0 0 10px #ff00aa; animation-delay: 0.2s; }
+        .thumb-rythm-note:nth-child(11) { left: 62%; bottom: 20px; background: #ffee00; box-shadow: 0 0 10px #ffee00; animation-delay: 0.6s; }
+        .thumb-rythm-note:nth-child(12) { left: 86%; bottom: 20px; background: #39ff88; box-shadow: 0 0 10px #39ff88; animation-delay: 1.0s; }
+
+        @keyframes noteFloat {
+            0% { transform: rotate(45deg) translateY(0); opacity: 1; }
+            85% { opacity: 1; }
+            100% { transform: rotate(45deg) translateY(-160px); opacity: 0; }
+        }
+
     </style>
 </head>
 <body>
@@ -568,6 +627,37 @@
                     <p class="text-gray-400 text-sm mb-5">
                         Defenda a Terra das ondas de invasores neon. Atire, proteja-se atrás dos escudos,
                         persiga o disco voador bônus e sobreviva ao avanço alienígena.
+                    </p>
+                    <span class="btn-neon btn-neon-pink text-sm">Jogar Agora</span>
+                </div>
+            </a>
+
+            <a href="neon_rythm/index.html" class="game-card group">
+                <div class="game-thumb">
+                    <div class="thumb-grid-lines"></div>
+                    <div class="thumb-rythm">
+                        <div class="thumb-rythm-lane"></div>
+                        <div class="thumb-rythm-lane"></div>
+                        <div class="thumb-rythm-lane"></div>
+                        <div class="thumb-rythm-lane"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-note"></div>
+                        <div class="thumb-rythm-hit"></div>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <span class="tag" style="color:#00ffff;">RHYTHM</span>
+                    <span class="tag" style="color:#ff00aa;">MUSIC</span>
+                    <h3 class="text-xl font-bold text-glow-cyan mb-2">NEON RYTHM</h3>
+                    <p class="text-gray-400 text-sm mb-5">
+                        Aperte D, F, J, K no ritmo da batida synthwave. Notas sobem — acerte no tempo
+                        e construa o seu combo. 3 erros e é game over.
                     </p>
                     <span class="btn-neon btn-neon-pink text-sm">Jogar Agora</span>
                 </div>

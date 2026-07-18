@@ -1,0 +1,1534 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
+    <title>Neon Rythm - Vibe Games</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <style>
+        body {
+            margin: 0;
+            overflow: hidden;
+            background-color: #050510;
+            color: #fff;
+            font-family: 'Orbitron', sans-serif;
+            touch-action: none;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            height: 100vh;
+        }
+
+        #game-wrapper {
+            position: relative;
+            height: 100vh;
+            aspect-ratio: 9/16;
+            background-color: #000;
+            box-shadow: 0 0 50px rgba(0, 255, 255, 0.2);
+            overflow: hidden;
+        }
+
+        canvas {
+            display: block;
+            width: 100%;
+            height: 100%;
+            touch-action: none;
+        }
+
+        #ui-layer {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            pointer-events: none;
+            background: rgba(0, 0, 0, 0.7);
+            z-index: 10;
+        }
+
+        .btn-neon {
+            pointer-events: auto;
+            background: transparent;
+            color: #00ffff;
+            border: 2px solid #00ffff;
+            padding: 15px 40px;
+            font-size: 24px;
+            font-family: 'Orbitron', sans-serif;
+            font-weight: bold;
+            border-radius: 8px;
+            cursor: pointer;
+            text-transform: uppercase;
+            box-shadow: 0 0 15px #00ffff inset, 0 0 20px #00ffff;
+            transition: all 0.2s;
+        }
+
+        .btn-neon:hover, .btn-neon:active {
+            background: #00ffff;
+            color: #000;
+            box-shadow: 0 0 25px #00ffff inset, 0 0 40px #00ffff;
+        }
+
+        .hidden { display: none !important; }
+
+        .text-glow-red { text-shadow: 0 0 10px #ff0055, 0 0 20px #ff0055, 0 0 30px #ff0055; color: #fff; }
+        .text-glow-cyan { text-shadow: 0 0 10px #00ffff, 0 0 20px #00ffff; color: #fff; }
+        .text-glow-gold { text-shadow: 0 0 10px #ffee00, 0 0 20px #ffee00; color: #fff; }
+        .text-glow-green { text-shadow: 0 0 10px #39ff88, 0 0 20px #39ff88; color: #fff; }
+
+        @keyframes shake {
+            0% { transform: translate(1px, 1px) rotate(0deg); }
+            10% { transform: translate(-1px, -2px) rotate(-1deg); }
+            20% { transform: translate(-3px, 0px) rotate(1deg); }
+            30% { transform: translate(3px, 2px) rotate(0deg); }
+            40% { transform: translate(1px, -1px) rotate(1deg); }
+            50% { transform: translate(-1px, 2px) rotate(-1deg); }
+            60% { transform: translate(-3px, 1px) rotate(0deg); }
+            70% { transform: translate(3px, 1px) rotate(-1deg); }
+            80% { transform: translate(-1px, -1px) rotate(1deg); }
+            90% { transform: translate(1px, 2px) rotate(0deg); }
+            100% { transform: translate(1px, -2px) rotate(-1deg); }
+        }
+
+        .shake-constant { animation: shake 0.5s; animation-iteration-count: infinite; display: inline-block; }
+
+        :fullscreen, :-webkit-full-screen { background-color: #050510; }
+        body.pseudo-fullscreen { position: fixed; inset: 0; width: 100vw; height: 100vh; z-index: 9999; }
+
+        #top-controls {
+            position: absolute;
+            top: 18px; left: 18px; right: 18px;
+            display: flex; justify-content: space-between; align-items: center;
+            z-index: 20; pointer-events: none;
+        }
+
+        .top-controls-right { display: flex; gap: 10px; }
+
+        .icon-btn {
+            pointer-events: auto;
+            width: 42px; height: 42px; border-radius: 50%;
+            background: rgba(0,0,0,0.55); border: 1px solid #00ffff;
+            color: #00ffff; font-size: 18px;
+            display: flex; align-items: center; justify-content: center;
+            cursor: pointer; box-shadow: 0 0 10px rgba(0,255,255,0.5);
+            transition: all 0.2s;
+        }
+
+        .icon-btn:hover, .icon-btn:active {
+            background: rgba(0,255,255,0.25);
+            box-shadow: 0 0 18px rgba(0,255,255,0.8);
+        }
+    </style>
+</head>
+<body>
+    <div id="game-wrapper">
+        <canvas id="gameCanvas"></canvas>
+
+        <div id="ui-layer">
+            <div id="top-controls">
+                <button id="home-btn" class="icon-btn" title="Voltar ao início">🏠</button>
+                <div class="top-controls-right">
+                    <button id="mute-btn" class="icon-btn" title="Som">🔊</button>
+                    <button id="fullscreen-btn" class="icon-btn" title="Tela cheia">⛶</button>
+                </div>
+            </div>
+
+            <div id="start-screen" class="flex flex-col items-center justify-center w-full h-full px-6">
+                <h1 class="text-5xl font-black mb-2 text-glow-cyan text-center">NEON<br>RYTHM</h1>
+                <p class="mb-1 text-gray-300 text-sm tracking-widest text-center">D F J K — ATIRE AS NOTAS NO RITMO</p>
+                <p class="mb-1 text-gray-400 text-xs tracking-widest text-center">TOQUE AS FAIXAS NO CELULAR</p>
+                <p class="mb-1 text-gray-400 text-xs tracking-widest text-center">NOTAS COM RASTRO: PRESSIONE E SEGURE</p>
+                <p class="mb-6 text-red-400 text-xs tracking-widest text-center">⚠ PERCA 5 NOTAS = GAME OVER ⚠</p>
+                <p id="start-best" class="mb-8 text-yellow-300 text-xs tracking-widest text-center">MELHOR: 0</p>
+                <button id="start-btn" class="btn-neon">START GAME</button>
+                <div class="mt-6 flex gap-3 text-xs text-gray-500">
+                    <span style="color:#00ffff;">█ D</span>
+                    <span style="color:#ff00aa;">█ F</span>
+                    <span style="color:#ffee00;">█ J</span>
+                    <span style="color:#39ff88;">█ K</span>
+                </div>
+            </div>
+
+            <div id="game-over-screen" class="hidden flex flex-col items-center w-full px-4 text-center">
+                <h2 id="game-over-title" class="text-3xl font-black text-glow-red mb-4">FIM DE JOGO!</h2>
+                <div class="bg-gray-900 bg-opacity-80 p-6 rounded-lg border border-cyan-500 shadow-[0_0_15px_#00ffff] mb-4 w-full max-w-sm">
+                    <p class="text-xl text-cyan-300 mb-2">PONTUAÇÃO</p>
+                    <p id="final-score" class="text-5xl font-bold text-white text-glow-cyan">0</p>
+                    <p id="final-accuracy" class="mt-2 text-sm tracking-widest" style="color:#ffee00;">PRECISÃO: 0%</p>
+                    <p id="final-max-combo" class="mt-1 text-sm tracking-widest" style="color:#ff00aa;">COMBO MÁXIMO: 0</p>
+                    <p id="final-perfects" class="mt-1 text-sm tracking-widest" style="color:#39ff88;">PERFECT: 0</p>
+                    <p id="final-goods" class="mt-1 text-sm tracking-widest" style="color:#00ffff;">GOOD: 0</p>
+                    <p id="final-lows" class="mt-1 text-sm tracking-widest" style="color:#ff8800;">LOW: 0</p>
+                </div>
+                <p id="best-score" class="mb-8 text-yellow-300 text-sm tracking-widest text-glow-gold">MELHOR: 0</p>
+                <button id="restart-btn" class="btn-neon">TRY AGAIN</button>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const canvas = document.getElementById('gameCanvas');
+        const ctx = canvas.getContext('2d');
+        const uiLayer = document.getElementById('ui-layer');
+        const startScreen = document.getElementById('start-screen');
+        const gameOverScreen = document.getElementById('game-over-screen');
+        const finalScoreEl = document.getElementById('final-score');
+        const finalAccuracyEl = document.getElementById('final-accuracy');
+        const finalMaxComboEl = document.getElementById('final-max-combo');
+        const finalPerfectsEl = document.getElementById('final-perfects');
+        const finalGoodsEl = document.getElementById('final-goods');
+        const finalLowsEl = document.getElementById('final-lows');
+        const bestScoreEl = document.getElementById('best-score');
+        const startBestEl = document.getElementById('start-best');
+        const gameOverTitle = document.getElementById('game-over-title');
+
+        // ==================== CONSTANTS ====================
+        const GAME_WIDTH = 540;
+        const GAME_HEIGHT = 960;
+        canvas.width = GAME_WIDTH;
+        canvas.height = GAME_HEIGHT;
+
+        const HUD_H = 70;
+        const HIT_Y = 155; // where notes should be hit
+        const LANE_COUNT = 4;
+        const LANE_LEFT = 48;
+        const LANE_RIGHT = 492;
+        const LANE_WIDTH = (LANE_RIGHT - LANE_LEFT) / LANE_COUNT;
+        const NOTE_W = 76;
+        const NOTE_H = 22;
+        const NOTE_SPEED = 6.2; // px per frame at 60fps baseline
+        const PERFECT_WINDOW = 80; // ms — generous
+        const GOOD_WINDOW = 160; // ms
+        const LOW_WINDOW = 240; // ms — still a hit, fewer points
+        const MISS_WINDOW = LOW_WINDOW; // ms — auto-miss threshold (note passed unpressed)
+        const MAX_LIVES = 5;
+        const COUNTDOWN_MS = 3000;
+        const FIRST_NOTE_DELAY_MS = 2800;
+        const HOLD_MIN_MS = 900;
+
+        const KEYS = ['KeyD', 'KeyF', 'KeyJ', 'KeyK'];
+        const LANE_COLORS = ['#00ffff', '#ff00aa', '#ffee00', '#39ff88'];
+        const LANE_NAMES = ['D', 'F', 'J', 'K'];
+        const SCORE_PERFECT = 300;
+        const SCORE_GOOD = 150;
+        const SCORE_LOW = 50;
+        const BEST_KEY = 'neonRythmBestScore';
+
+        const BPM = 120;
+        const STEP_MS = 60000 / BPM / 2; // 16th note = 250ms
+        const BEAT_MS = 60000 / BPM; // quarter note = 500ms
+
+        // ==================== SOUND ENGINE ====================
+        const SoundEngine = (() => {
+            let ctx = null;
+            let masterGain, sfxGain, compressor;
+            let musicGain, musicGainNode;
+            let seqTimerID = null;
+            let nextStepTime = 0;
+            let seqStep = 0;
+            let currentBeat = 0;
+            let scheduledNotes = [];
+            let noiseBuffer = null;
+            let seqStartTime = 0;
+
+            // A minor synth-rock loop. Gameplay notes reuse this harmony so hits
+            // feel like playing the lead instrument instead of triggering beeps.
+            const chordNotes = [
+                [220.00, 261.63, 329.63, 440.00],
+                [293.66, 349.23, 440.00, 587.33],
+                [261.63, 329.63, 392.00, 523.25],
+                [196.00, 246.94, 293.66, 392.00],
+            ];
+            const bassNotes = [110.00, 110.00, 146.83, 146.83, 130.81, 130.81, 98.00, 98.00,
+                             110.00, 164.81, 146.83, 110.00, 130.81, 164.81, 98.00, 130.81];
+            const arpNotes = [440.00, 523.25, 659.25, 783.99, 587.33, 440.00, 349.23, 293.66,
+                             523.25, 659.25, 783.99, 659.25, 392.00, 493.88, 587.33, 783.99];
+            // Kick on beat 0,4; snare on beat 2,6 (8-step at 8th note = 1 bar)
+            const kickSteps = [0, 4];
+            const snareSteps = [2, 6];
+            const hat16Steps = [1, 3, 5, 7, 9, 11, 13, 15]; // 16th hats
+
+            function ensureCtx() {
+                if (!ctx) {
+                    ctx = new (window.AudioContext || window.webkitAudioContext)();
+                    masterGain = ctx.createGain();
+                    masterGain.gain.value = 0.82;
+                    compressor = ctx.createDynamicsCompressor();
+                    compressor.threshold.value = -18;
+                    compressor.ratio.value = 12;
+                    compressor.connect(ctx.destination);
+                    masterGain.connect(compressor);
+                    sfxGain = ctx.createGain();
+                    sfxGain.gain.value = 0.85;
+                    sfxGain.connect(masterGain);
+                    musicGain = ctx.createGain();
+                    musicGain.gain.value = 0.34;
+                    musicGain.connect(masterGain);
+                    noiseBuffer = createNoiseBuffer();
+                }
+            }
+
+            function createNoiseBuffer() {
+                const bufferSize = ctx.sampleRate * 1;
+                const buffer = ctx.createBuffer(1, bufferSize, ctx.sampleRate);
+                const data = buffer.getChannelData(0);
+                for (let i = 0; i < bufferSize; i++) data[i] = Math.random() * 2 - 1;
+                return buffer;
+            }
+
+            function init() {
+                ensureCtx();
+                if (ctx.state === 'suspended') ctx.resume();
+                if (masterGain && masterGain.gain.value === 0) {
+                    masterGain.gain.setTargetAtTime(0.75, ctx.currentTime, 0.05);
+                }
+            }
+
+            function noiseSource() {
+                const src = ctx.createBufferSource();
+                src.buffer = noiseBuffer;
+                return src;
+            }
+
+            // -------- Drum synthesis --------
+            function scheduleKick(time) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(150, time);
+                osc.frequency.exponentialRampToValueAtTime(40, time + 0.12);
+                gain.gain.setValueAtTime(0.0001, time);
+                gain.gain.exponentialRampToValueAtTime(0.8, time + 0.005);
+                gain.gain.exponentialRampToValueAtTime(0.0001, time + 0.22);
+                osc.connect(gain);
+                gain.connect(musicGain);
+                osc.start(time);
+                osc.stop(time + 0.25);
+            }
+
+            function scheduleSnare(time) {
+                // Tone
+                const osc = ctx.createOscillator();
+                const oGain = ctx.createGain();
+                osc.type = 'triangle';
+                osc.frequency.value = 200;
+                oGain.gain.setValueAtTime(0.0001, time);
+                oGain.gain.exponentialRampToValueAtTime(0.3, time + 0.01);
+                oGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.08);
+                osc.connect(oGain);
+                oGain.connect(musicGain);
+                osc.start(time);
+                osc.stop(time + 0.1);
+                // Noise
+                const src = noiseSource();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 1200;
+                const nGain = ctx.createGain();
+                nGain.gain.setValueAtTime(0.0001, time);
+                nGain.gain.exponentialRampToValueAtTime(0.45, time + 0.005);
+                nGain.gain.exponentialRampToValueAtTime(0.0001, time + 0.15);
+                src.connect(filter);
+                filter.connect(nGain);
+                nGain.connect(musicGain);
+                src.start(time);
+                src.stop(time + 0.17);
+            }
+
+            function scheduleHihat(time, open) {
+                const src = noiseSource();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'highpass';
+                filter.frequency.value = 7000;
+                const gain = ctx.createGain();
+                const dur = open ? 0.18 : 0.045;
+                gain.gain.setValueAtTime(0.0001, time);
+                gain.gain.exponentialRampToValueAtTime(0.18, time + 0.003);
+                gain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+                src.connect(filter);
+                filter.connect(gain);
+                gain.connect(musicGain);
+                src.start(time);
+                src.stop(time + dur + 0.01);
+            }
+
+            // -------- Synth (bass + arp) --------
+            function scheduleBass(time, freq, dur) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(500, time);
+                filter.frequency.exponentialRampToValueAtTime(150, time + dur);
+                osc.type = 'sawtooth';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.0001, time);
+                gain.gain.exponentialRampToValueAtTime(0.35, time + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.9);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(musicGain);
+                osc.start(time);
+                osc.stop(time + dur + 0.05);
+            }
+
+            function scheduleArp(time, freq, dur) {
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(2000, time);
+                osc.type = 'square';
+                osc.frequency.value = freq;
+                gain.gain.setValueAtTime(0.0001, time);
+                gain.gain.exponentialRampToValueAtTime(0.12, time + 0.01);
+                gain.gain.exponentialRampToValueAtTime(0.0001, time + dur * 0.7);
+                osc.connect(filter);
+                filter.connect(gain);
+                gain.connect(musicGain);
+                osc.start(time);
+                osc.stop(time + dur + 0.05);
+            }
+
+            function schedulePowerChord(time, freqs, dur) {
+                const chordGain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(1100, time);
+                filter.frequency.exponentialRampToValueAtTime(520, time + dur);
+                chordGain.gain.setValueAtTime(0.0001, time);
+                chordGain.gain.exponentialRampToValueAtTime(0.12, time + 0.04);
+                chordGain.gain.exponentialRampToValueAtTime(0.0001, time + dur);
+                freqs.forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = i % 2 ? 'sawtooth' : 'triangle';
+                    osc.frequency.value = freq * (i === 3 ? 0.5 : 1);
+                    osc.detune.value = (i - 1.5) * 5;
+                    osc.connect(filter);
+                    osc.start(time);
+                    osc.stop(time + dur + 0.05);
+                });
+                filter.connect(chordGain);
+                chordGain.connect(musicGain);
+            }
+
+            // -------- Sequencer step --------
+            function scheduleSequencerStep(stepIdx, time, gameTimeMs) {
+                const stepInBar = stepIdx % 16;
+                const halfBeat = stepIdx % 2 === 0;
+
+                // Kick
+                if (kickSteps.includes(stepInBar)) {
+                    scheduleKick(time);
+                }
+                // Snare
+                if (snareSteps.includes(stepInBar)) {
+                    scheduleSnare(time);
+                }
+                // Hi-hat on every 16th
+                if (hat16Steps.includes(stepInBar)) {
+                    scheduleHihat(time, false);
+                }
+                // Open hat on some 8ths
+                if (stepInBar % 4 === 2 && stepInBar % 8 === 2) {
+                    scheduleHihat(time + STEP_MS * 0.0005, true);
+                }
+
+                // Bass on every beat (every 4 steps)
+                if (stepIdx % 2 === 0) {
+                    const bassIdx = Math.floor(stepIdx / 2) % bassNotes.length;
+                    scheduleBass(time, bassNotes[bassIdx], STEP_MS * 0.002);
+                }
+
+                // Sustained chords make the backing track feel like an actual song.
+                if (stepInBar === 0 || stepInBar === 8) {
+                    const chordIdx = Math.floor(stepIdx / 8) % chordNotes.length;
+                    schedulePowerChord(time, chordNotes[chordIdx], STEP_MS * 7.5 / 1000);
+                }
+
+                // Arp on every 16th
+                const arpIdx = stepIdx % arpNotes.length;
+                scheduleArp(time, arpNotes[arpIdx], STEP_MS * 0.0008);
+
+                // Notify game of beat (timeMs is on the performance.now() timeline)
+                if (halfBeat) {
+                    const beatNum = Math.floor(stepIdx / 2) % 8;
+                    scheduledNotes.push({ timeMs: gameTimeMs, beat: currentBeat, step: stepIdx, beatInBar: beatNum });
+                }
+                currentBeat++;
+            }
+
+            function sequencerScheduler() {
+                // Must be longer than the note travel time (~2.4s) so the game
+                // can spawn notes at the bottom of the screen in time.
+                const lookAheadMs = 2700; // ms
+                const nowMs = performance.now() - seqStartTime;
+                while (nextStepTime < nowMs + lookAheadMs) {
+                    // Convert game-relative time to AudioContext absolute time
+                    const audioTime = ctx.currentTime + (nextStepTime - nowMs) / 1000;
+                    scheduleSequencerStep(seqStep, audioTime, nextStepTime);
+                    nextStepTime += STEP_MS;
+                    seqStep++;
+                }
+                seqTimerID = setTimeout(sequencerScheduler, 30);
+            }
+
+            function startMusic() {
+                ensureCtx();
+                if (ctx.state === 'suspended') ctx.resume();
+                stopMusic();
+                seqStep = 0;
+                currentBeat = 0;
+                scheduledNotes = [];
+                seqStartTime = performance.now();
+                nextStepTime = 0;
+                sequencerScheduler();
+            }
+
+            function stopMusic() {
+                if (seqTimerID) { clearTimeout(seqTimerID); seqTimerID = null; }
+            }
+
+            function stopAll() {
+                if (seqTimerID) { clearTimeout(seqTimerID); seqTimerID = null; }
+                if (ctx && masterGain) {
+                    const now = ctx.currentTime;
+                    masterGain.gain.cancelScheduledValues(now);
+                    masterGain.gain.setValueAtTime(0, now);
+                }
+            }
+
+            function setMuted(muted) {
+                if (!ctx) return;
+                masterGain.gain.setTargetAtTime(muted ? 0 : 0.75, ctx.currentTime, 0.05);
+            }
+
+            // -------- SFX --------
+            // Subtle key-press feedback so every tap makes a sound
+            function getLeadFrequency(lane, timeMs) {
+                const beat = Math.max(0, Math.floor(timeMs / BEAT_MS));
+                const chordIdx = Math.floor(beat / 4) % chordNotes.length;
+                const notes = chordNotes[chordIdx];
+                const melodicStep = Math.floor(beat / 2 + lane) % notes.length;
+                return notes[melodicStep] * (lane >= 2 ? 1.5 : 1);
+            }
+
+            function playTap(lane) {
+                if (!ctx) return;
+                const t = ctx.currentTime;
+                const osc = ctx.createOscillator();
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                osc.type = 'triangle';
+                osc.frequency.value = getLeadFrequency(lane, getMusicTime()) * 0.5;
+                filter.type = 'bandpass';
+                filter.frequency.value = 1200;
+                filter.Q.value = 5;
+                gain.gain.setValueAtTime(0.0001, t);
+                gain.gain.exponentialRampToValueAtTime(0.035, t + 0.004);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.035);
+                osc.connect(filter); filter.connect(gain); gain.connect(sfxGain);
+                osc.start(t); osc.stop(t + 0.04);
+            }
+
+            function playLeadNote(lane, type, timeMs) {
+                if (!ctx) return;
+                const t = ctx.currentTime;
+                const freq = getLeadFrequency(lane, timeMs || getMusicTime());
+                const dur = type === 'perfect' ? 0.34 : type === 'good' ? 0.22 : 0.14;
+                const peak = type === 'perfect' ? 0.45 : type === 'good' ? 0.32 : 0.22;
+                const filterFreq = type === 'perfect' ? 3600 : type === 'good' ? 2400 : 1400;
+
+                const gain = ctx.createGain();
+                const filter = ctx.createBiquadFilter();
+                filter.type = 'lowpass';
+                filter.frequency.setValueAtTime(filterFreq, t);
+                filter.frequency.exponentialRampToValueAtTime(700, t + dur);
+                gain.gain.setValueAtTime(0.0001, t);
+                gain.gain.exponentialRampToValueAtTime(peak, t + 0.008);
+                gain.gain.exponentialRampToValueAtTime(0.0001, t + dur);
+
+                [0, 7, 12].forEach((semi, i) => {
+                    const osc = ctx.createOscillator();
+                    osc.type = i === 0 ? 'sawtooth' : 'square';
+                    osc.frequency.value = freq * Math.pow(2, semi / 12);
+                    osc.detune.value = i === 1 ? -6 : i === 2 ? 5 : 0;
+                    osc.connect(filter);
+                    osc.start(t);
+                    osc.stop(t + dur + 0.03);
+                });
+
+                filter.connect(gain);
+                gain.connect(sfxGain);
+            }
+
+            function playHit(type, lane = 0, timeMs = 0) {
+                if (!ctx) return;
+                const t = ctx.currentTime;
+                if (type === 'perfect') {
+                    playLeadNote(lane, type, timeMs);
+                    scheduleHihat(t, true);
+                } else if (type === 'good') {
+                    playLeadNote(lane, type, timeMs);
+                } else if (type === 'low') {
+                    playLeadNote(lane, type, timeMs);
+                } else if (type === 'miss') {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.setValueAtTime(200, t);
+                    osc.frequency.exponentialRampToValueAtTime(60, t + 0.18);
+                    gain.gain.setValueAtTime(0.0001, t);
+                    gain.gain.exponentialRampToValueAtTime(0.3, t + 0.01);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.2);
+                    osc.connect(gain); gain.connect(sfxGain);
+                    osc.start(t); osc.stop(t + 0.22);
+                }
+            }
+
+            function playStart() {
+                if (!ctx) return;
+                const t = ctx.currentTime;
+                [261.63, 329.63, 392.00, 523.25].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+                    const start = t + i * 0.1;
+                    gain.gain.setValueAtTime(0.0001, start);
+                    gain.gain.exponentialRampToValueAtTime(0.28, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.3);
+                    osc.connect(gain); gain.connect(sfxGain);
+                    osc.start(start); osc.stop(start + 0.35);
+                });
+            }
+
+            function playGameOver() {
+                if (!ctx) return;
+                const t = ctx.currentTime;
+                [392.00, 329.63, 261.63, 196.00].forEach((freq, i) => {
+                    const osc = ctx.createOscillator();
+                    const gain = ctx.createGain();
+                    osc.type = 'sawtooth';
+                    osc.frequency.value = freq;
+                    const start = t + i * 0.18;
+                    gain.gain.setValueAtTime(0.0001, start);
+                    gain.gain.exponentialRampToValueAtTime(0.3, start + 0.02);
+                    gain.gain.exponentialRampToValueAtTime(0.0001, start + 0.35);
+                    osc.connect(gain); gain.connect(sfxGain);
+                    osc.start(start); osc.stop(start + 0.4);
+                });
+            }
+
+            // Called by game to get notes that should be spawned for upcoming beats
+            function getScheduledNotesForGame() {
+                const nowMs = performance.now() - seqStartTime;
+                const lookAheadMs = 2500;
+                const notes = [];
+                for (const sn of scheduledNotes) {
+                    if (sn.timeMs >= nowMs && sn.timeMs <= nowMs + lookAheadMs) {
+                        notes.push(sn);
+                    }
+                }
+                // Clean old entries
+                scheduledNotes = scheduledNotes.filter(sn => sn.timeMs > nowMs - 1000);
+                return notes;
+            }
+
+            // Current music time in ms (same timeline as note timeMs / performance.now())
+            function getMusicTime() {
+                if (!ctx || !seqStartTime) return 0;
+                return performance.now() - seqStartTime;
+            }
+
+            return { init, startMusic, stopMusic, stopAll, setMuted, playHit, playTap, playStart, playGameOver, getScheduledNotesForGame, getMusicTime };
+        })();
+
+        // ==================== GAME STATE ====================
+        let gameState = 'START';
+        let score = 0;
+        let combo = 0;
+        let maxCombo = 0;
+        let lives = MAX_LIVES;
+        let bestScore = parseInt(localStorage.getItem(BEST_KEY) || '0', 10);
+
+        let notes = []; // { lane, y, hit, judged, perfect }
+        let laneFlash = [0, 0, 0, 0]; // flash intensity per lane
+        let judgmentFlash = 0; // 0=none, 1=perfect, 2=good, 3=miss
+        let judgmentTimer = 0;
+        let judgmentText = '';
+        let judgmentColor = '#fff';
+        let particles = [];
+        let noteSpeed = NOTE_SPEED;
+        let totalNotes = 0;
+        let hitNotes = 0;
+        let perfectNotes = 0;
+        let goodNotes = 0;
+        let lowNotes = 0;
+        let missNotes = 0;
+        let shakeTimer = 0;
+        let gameTime = 0; // seconds playing
+        let spawnTimer = 0;
+        let beatCount = 0;
+        let countdownMs = 0;
+        let musicStarted = false;
+        let difficulty = 1; // 1=easy, 2=medium, 3=hard, 4=insane
+        let spawnedSteps = new Set(); // sequencer steps already spawned
+        let lastLeadLane = -1;
+        let repeatLaneCount = 0;
+
+        const keys = {};
+        let pointerLane = [-1, -1, -1, -1]; // for touch
+
+        function clamp01(value) {
+            return Math.max(0, Math.min(1, value));
+        }
+
+        function spawnNote(lane, hitTime, durationMs = 0) {
+            const laneX = LANE_LEFT + (lane + 0.5) * LANE_WIDTH;
+            notes.push({
+                lane,
+                x: laneX,
+                y: GAME_HEIGHT + NOTE_H,
+                hitTime, // ms on the music timeline when the note should be hit
+                endTime: hitTime + durationMs,
+                durationMs,
+                holding: false,
+                holdJudgment: null,
+                hit: false,
+                judged: false,
+                color: LANE_COLORS[lane],
+            });
+            totalNotes++;
+        }
+
+        function chooseLeadLane() {
+            let lane = Math.floor(Math.random() * LANE_COUNT);
+            if (lane === lastLeadLane) repeatLaneCount++;
+            else repeatLaneCount = 0;
+            if (repeatLaneCount >= 2) {
+                const dir = Math.random() < 0.5 ? -1 : 1;
+                lane = Math.max(0, Math.min(LANE_COUNT - 1, lane + dir));
+                repeatLaneCount = 0;
+            }
+            lastLeadLane = lane;
+            return lane;
+        }
+
+        function spawnBeatNotes(sn) {
+            if (sn.timeMs < FIRST_NOTE_DELAY_MS) return;
+            const seconds = sn.timeMs / 1000;
+            const density = clamp01(0.35 + seconds / 130); // smooth, not sudden
+            const everyBeatChance = clamp01((seconds - 18) / 55);
+            const isStrongBeat = sn.beatInBar % 2 === 0;
+            const accentBeat = sn.beatInBar === 0 || sn.beatInBar === 4;
+
+            if (!isStrongBeat && Math.random() > everyBeatChance) return;
+            if (Math.random() > (accentBeat ? 0.92 : 0.52 + density * 0.34)) return;
+
+            const lanes = [chooseLeadLane()];
+            const doubleChance = clamp01((seconds - 28) / 95) * 0.46;
+            const tripleChance = clamp01((seconds - 95) / 120) * 0.16;
+            const quadChance = clamp01((seconds - 180) / 120) * 0.05;
+            let targetCount = 1;
+            if (Math.random() < doubleChance) targetCount = 2;
+            if (Math.random() < tripleChance) targetCount = 3;
+            if (Math.random() < quadChance) targetCount = 4;
+
+            while (lanes.length < targetCount) {
+                const lane = Math.floor(Math.random() * LANE_COUNT);
+                if (!lanes.includes(lane)) lanes.push(lane);
+            }
+            lanes.sort((a, b) => a - b).forEach((lane, idx) => {
+                const holdChance = clamp01((seconds - 25) / 120) * (targetCount === 1 ? 0.28 : 0.08);
+                const durationMs = Math.random() < holdChance ? HOLD_MIN_MS + Math.floor(Math.random() * 900) : 0;
+                spawnNote(lane, sn.timeMs + idx * 10, durationMs);
+            });
+        }
+
+        function getLaneX(lane) {
+            return LANE_LEFT + (lane + 0.5) * LANE_WIDTH;
+        }
+
+        function roundedRect(c, x, y, w, h, r) {
+            const radius = Math.min(r, Math.abs(w) / 2, Math.abs(h) / 2);
+            c.moveTo(x + radius, y);
+            c.lineTo(x + w - radius, y);
+            c.quadraticCurveTo(x + w, y, x + w, y + radius);
+            c.lineTo(x + w, y + h - radius);
+            c.quadraticCurveTo(x + w, y + h, x + w - radius, y + h);
+            c.lineTo(x + radius, y + h);
+            c.quadraticCurveTo(x, y + h, x, y + h - radius);
+            c.lineTo(x, y + radius);
+            c.quadraticCurveTo(x, y, x + radius, y);
+        }
+
+        // Particles
+        class Particle {
+            constructor(x, y, color, vx, vy) {
+                this.x = x; this.y = y; this.color = color;
+                this.vx = vx; this.vy = vy;
+                this.life = 1.0;
+                this.decay = Math.random() * 0.03 + 0.02;
+                this.size = Math.random() * 5 + 2;
+            }
+            update() {
+                this.x += this.vx;
+                this.y += this.vy;
+                this.vy += 0.1;
+                this.life -= this.decay;
+            }
+            draw(c) {
+                c.globalAlpha = Math.max(0, this.life);
+                c.fillStyle = this.color;
+                c.shadowColor = this.color;
+                c.shadowBlur = 8;
+                c.beginPath();
+                c.arc(this.x, this.y, this.size, 0, Math.PI * 2);
+                c.fill();
+                c.shadowBlur = 0;
+                c.globalAlpha = 1;
+            }
+        }
+
+        function burst(x, y, color, count) {
+            for (let i = 0; i < count; i++) {
+                const angle = Math.random() * Math.PI * 2;
+                const speed = Math.random() * 6 + 2;
+                particles.push(new Particle(x, y, color, Math.cos(angle) * speed, Math.sin(angle) * speed - 2));
+            }
+        }
+
+        // ==================== INPUT ====================
+        window.addEventListener('keydown', (e) => {
+            if (keys[e.code]) return; // repeat
+            keys[e.code] = true;
+            if (gameState !== 'PLAYING' || countdownMs > 0) return;
+            const lane = KEYS.indexOf(e.code);
+            if (lane >= 0) {
+                laneFlash[lane] = 1;
+                pressLane(lane);
+            }
+        });
+        window.addEventListener('keyup', (e) => {
+            keys[e.code] = false;
+        });
+
+        // Touch: each lane is a separate touch zone
+        canvas.addEventListener('pointerdown', (e) => {
+            if (gameState !== 'PLAYING' || countdownMs > 0) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const x = (e.clientX - rect.left) * scaleX;
+            const lane = getLaneFromX(x);
+            if (lane >= 0) {
+                pointerLane[lane] = 1;
+                laneFlash[lane] = 1;
+                pressLane(lane);
+            }
+        });
+        canvas.addEventListener('pointerup', (e) => {
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const x = (e.clientX - rect.left) * scaleX;
+            const lane = getLaneFromX(x);
+            if (lane >= 0) pointerLane[lane] = 0;
+        });
+        canvas.addEventListener('pointercancel', () => { pointerLane = [-1, -1, -1, -1]; });
+        canvas.addEventListener('pointermove', (e) => {
+            if (gameState !== 'PLAYING' || countdownMs > 0) return;
+            e.preventDefault();
+            const rect = canvas.getBoundingClientRect();
+            const scaleX = canvas.width / rect.width;
+            const x = (e.clientX - rect.left) * scaleX;
+            const newLane = getLaneFromX(x);
+            // Auto-fire on hold (touch)
+            for (let i = 0; i < LANE_COUNT; i++) {
+                if (pointerLane[i] && i === newLane) { /* already firing */ }
+            }
+        });
+
+        function getLaneFromX(x) {
+            if (x < LANE_LEFT || x > LANE_RIGHT) return -1;
+            return Math.floor((x - LANE_LEFT) / LANE_WIDTH);
+        }
+
+        function isLaneHeld(lane) {
+            return keys[KEYS[lane]] || pointerLane[lane] > 0;
+        }
+
+        function pressLane(lane) {
+            SoundEngine.playTap(lane); // audible feedback on every press
+            // Find closest note in this lane by time distance to its hit moment
+            const nowMs = SoundEngine.getMusicTime();
+            let closest = null;
+            let closestMs = Infinity;
+            for (const note of notes) {
+                if (note.lane !== lane || note.judged || note.holding) continue;
+                const ms = Math.abs(note.hitTime - nowMs);
+                if (ms < closestMs) {
+                    closestMs = ms;
+                    closest = note;
+                }
+            }
+
+            if (!closest) return;
+
+            // Tiered hit windows: near-perfect timing scores more,
+            // slightly early/late still counts as a hit with fewer points.
+            if (closestMs <= PERFECT_WINDOW) {
+                judgeNote(closest, 'perfect');
+            } else if (closestMs <= GOOD_WINDOW) {
+                judgeNote(closest, 'good');
+            } else if (closestMs <= LOW_WINDOW) {
+                judgeNote(closest, 'low');
+            }
+            // Outside all windows: nothing happens (no punishment)
+        }
+
+        function judgeNote(note, judgment) {
+            if (note.durationMs > 0 && judgment !== 'miss') {
+                startHoldNote(note, judgment);
+                return;
+            }
+
+            note.judged = true;
+            const x = note.x;
+            const y = note.y;
+
+            if (judgment === 'perfect') {
+                note.hit = true;
+                combo++;
+                hitNotes++;
+                perfectNotes++;
+                const mult = Math.min(Math.floor(combo / 10) + 1, 4);
+                score += SCORE_PERFECT * mult;
+                maxCombo = Math.max(maxCombo, combo);
+                judgmentText = 'PERFECT!';
+                judgmentColor = '#ffee00';
+                judgmentFlash = 1;
+                judgmentTimer = 40;
+                burst(x, HIT_Y, note.color, 20);
+                burst(x, HIT_Y, '#ffffff', 8);
+                SoundEngine.playHit('perfect', note.lane, note.hitTime);
+            } else if (judgment === 'good') {
+                note.hit = true;
+                combo++;
+                hitNotes++;
+                goodNotes++;
+                const mult = Math.min(Math.floor(combo / 10) + 1, 4);
+                score += SCORE_GOOD * mult;
+                maxCombo = Math.max(maxCombo, combo);
+                judgmentText = 'GOOD';
+                judgmentColor = '#00ffff';
+                judgmentFlash = 2;
+                judgmentTimer = 35;
+                burst(x, HIT_Y, note.color, 10);
+                SoundEngine.playHit('good', note.lane, note.hitTime);
+            } else if (judgment === 'low') {
+                note.hit = true;
+                combo++;
+                hitNotes++;
+                lowNotes++;
+                const mult = Math.min(Math.floor(combo / 10) + 1, 4);
+                score += SCORE_LOW * mult;
+                maxCombo = Math.max(maxCombo, combo);
+                judgmentText = 'LOW';
+                judgmentColor = '#ff8800';
+                judgmentFlash = 2;
+                judgmentTimer = 30;
+                burst(x, HIT_Y, note.color, 5);
+                SoundEngine.playHit('low', note.lane, note.hitTime);
+            } else {
+                combo = 0;
+                missNotes++;
+                lives--;
+                judgmentText = 'MISS';
+                judgmentColor = '#ff0055';
+                judgmentFlash = 3;
+                judgmentTimer = 40;
+                shakeTimer = 12;
+                burst(x, HIT_Y, '#ff0055', 12);
+                SoundEngine.playHit('miss', note.lane, note.hitTime);
+                if (lives <= 0) endGame();
+            }
+        }
+
+        function startHoldNote(note, judgment) {
+            note.holding = true;
+            note.holdJudgment = judgment;
+            note.hit = true;
+            judgmentText = judgment === 'perfect' ? 'HOLD PERFECT!' : judgment === 'good' ? 'HOLD GOOD' : 'HOLD';
+            judgmentColor = note.color;
+            judgmentFlash = 2;
+            judgmentTimer = 28;
+            laneFlash[note.lane] = 1.4;
+            burst(note.x, HIT_Y, note.color, judgment === 'perfect' ? 14 : 8);
+            SoundEngine.playHit(judgment, note.lane, note.hitTime);
+        }
+
+        function completeHoldNote(note) {
+            note.judged = true;
+            combo++;
+            hitNotes++;
+            if (note.holdJudgment === 'perfect') perfectNotes++;
+            else if (note.holdJudgment === 'good') goodNotes++;
+            else lowNotes++;
+            const mult = Math.min(Math.floor(combo / 10) + 1, 4);
+            const base = note.holdJudgment === 'perfect' ? SCORE_PERFECT : note.holdJudgment === 'good' ? SCORE_GOOD : SCORE_LOW;
+            score += Math.floor((base + note.durationMs * 0.16) * mult);
+            maxCombo = Math.max(maxCombo, combo);
+            judgmentText = 'HOLD COMPLETE!';
+            judgmentColor = '#39ff88';
+            judgmentFlash = 1;
+            judgmentTimer = 42;
+            burst(note.x, HIT_Y, note.color, 24);
+            burst(note.x, HIT_Y, '#ffffff', 8);
+            SoundEngine.playHit('perfect', note.lane, note.endTime);
+        }
+
+        // ==================== UPDATE ====================
+        function update(dt, scale) {
+            if (countdownMs > 0) {
+                countdownMs = Math.max(0, countdownMs - dt);
+                for (let i = 0; i < LANE_COUNT; i++) laneFlash[i] = Math.max(laneFlash[i], 0.08 + Math.random() * 0.04);
+                if (countdownMs === 0 && !musicStarted) {
+                    musicStarted = true;
+                    SoundEngine.startMusic();
+                    for (let i = 0; i < LANE_COUNT; i++) laneFlash[i] = 1.2;
+                }
+                for (let i = 0; i < LANE_COUNT; i++) laneFlash[i] *= 0.9;
+                return;
+            }
+
+            gameTime += dt / 1000;
+
+            // The visible label changes in stages, but note density/chords ramp
+            // continuously inside spawnBeatNotes so difficulty does not spike.
+            difficulty = 1 + Math.min(3, Math.floor(gameTime / 55));
+
+            // Note speed increases with difficulty
+            noteSpeed = NOTE_SPEED + clamp01(gameTime / 180) * 2.4;
+
+            // Spawn notes from the sequencer (each beat step spawns exactly once)
+            const musicNow = SoundEngine.getMusicTime();
+            const scheduled = SoundEngine.getScheduledNotesForGame();
+            for (const sn of scheduled) {
+                if (spawnedSteps.has(sn.step)) continue;
+                spawnedSteps.add(sn.step);
+                spawnBeatNotes(sn);
+            }
+
+            // Move notes: position derived from time so they arrive exactly on the beat
+            const speedPxPerMs = (noteSpeed * 60) / 1000;
+            for (const note of notes) {
+                if (!note.judged) {
+                    note.y = HIT_Y + (note.hitTime - musicNow) * speedPxPerMs;
+                    note.endY = HIT_Y + (note.endTime - musicNow) * speedPxPerMs;
+                }
+            }
+
+            for (const note of notes) {
+                if (!note.holding || note.judged) continue;
+                laneFlash[note.lane] = Math.max(laneFlash[note.lane], 0.55);
+                if (!isLaneHeld(note.lane) && musicNow < note.endTime - GOOD_WINDOW) {
+                    judgeNote(note, 'miss');
+                    if (lives <= 0) { endGame(); return; }
+                } else if (musicNow >= note.endTime - PERFECT_WINDOW) {
+                    completeHoldNote(note);
+                }
+            }
+
+            // Auto-miss notes that passed the hit zone unpressed
+            for (const note of notes) {
+                if (!note.judged && !note.holding && musicNow - note.hitTime > MISS_WINDOW) {
+                    note.judged = true;
+                    combo = 0;
+                    missNotes++;
+                    lives--;
+                    judgmentText = 'MISS';
+                    judgmentColor = '#ff0055';
+                    judgmentFlash = 3;
+                    judgmentTimer = 40;
+                    shakeTimer = 12;
+                    burst(note.x, HIT_Y, '#ff0055', 8);
+                    SoundEngine.playHit('miss', note.lane, note.hitTime);
+                    if (lives <= 0) { endGame(); return; }
+                }
+            }
+
+            // Remove judged notes (hit/miss effects are shown via particles)
+            notes = notes.filter(n => !n.judged);
+
+            // Lane flash decay
+            for (let i = 0; i < LANE_COUNT; i++) {
+                if (laneFlash[i] > 0) laneFlash[i] *= 0.82;
+            }
+
+            // Judgment flash decay
+            if (judgmentTimer > 0) {
+                judgmentTimer -= dt / 16.667;
+                if (judgmentTimer <= 0) judgmentFlash = 0;
+            }
+
+            // Shake decay
+            if (shakeTimer > 0) shakeTimer -= dt / 16.667;
+
+            // Particles
+            for (let i = particles.length - 1; i >= 0; i--) {
+                particles[i].update();
+                if (particles[i].life <= 0) particles.splice(i, 1);
+            }
+        }
+
+        // ==================== RENDER ====================
+        function render() {
+            // Shake
+            let shakeX = 0, shakeY = 0;
+            if (shakeTimer > 0) {
+                shakeX = (Math.random() - 0.5) * shakeTimer * 0.5;
+                shakeY = (Math.random() - 0.5) * shakeTimer * 0.5;
+            }
+            ctx.save();
+            ctx.translate(shakeX, shakeY);
+
+            // Background
+            const bg = ctx.createLinearGradient(0, 0, 0, GAME_HEIGHT);
+            bg.addColorStop(0, '#07071d');
+            bg.addColorStop(0.45, '#08051a');
+            bg.addColorStop(1, '#13001f');
+            ctx.fillStyle = bg;
+            ctx.fillRect(0, 0, GAME_WIDTH, GAME_HEIGHT);
+
+            ctx.globalCompositeOperation = 'lighter';
+            const pulse = 0.5 + Math.sin(performance.now() * 0.003) * 0.5;
+            ctx.fillStyle = `rgba(0,255,255,${0.025 + pulse * 0.025})`;
+            ctx.beginPath();
+            ctx.ellipse(GAME_WIDTH * 0.5, GAME_HEIGHT * 0.62, 260, 360, 0, 0, Math.PI * 2);
+            ctx.fill();
+
+            // Grid
+            ctx.strokeStyle = 'rgba(0, 255, 255, 0.07)';
+            ctx.lineWidth = 1;
+            for (let x = 0; x <= GAME_WIDTH; x += 60) {
+                ctx.beginPath(); ctx.moveTo(x, 0); ctx.lineTo(x, GAME_HEIGHT); ctx.stroke();
+            }
+            for (let y = 0; y < GAME_HEIGHT; y += 60) {
+                ctx.beginPath(); ctx.moveTo(0, y); ctx.lineTo(GAME_WIDTH, y); ctx.stroke();
+            }
+            ctx.globalCompositeOperation = 'source-over';
+
+            // Lane backgrounds
+            for (let i = 0; i < LANE_COUNT; i++) {
+                const lx = LANE_LEFT + i * LANE_WIDTH;
+                const flash = laneFlash[i];
+                const laneGradient = ctx.createLinearGradient(lx, HUD_H, lx + LANE_WIDTH, GAME_HEIGHT);
+                laneGradient.addColorStop(0, 'rgba(255,255,255,0.025)');
+                laneGradient.addColorStop(0.55, 'rgba(0,255,255,0.018)');
+                laneGradient.addColorStop(1, 'rgba(255,0,170,0.025)');
+                ctx.fillStyle = laneGradient;
+                ctx.fillRect(lx + 5, HUD_H, LANE_WIDTH - 10, GAME_HEIGHT - HUD_H);
+
+                if (flash > 0.05) {
+                    ctx.fillStyle = LANE_COLORS[i];
+                    ctx.globalAlpha = flash * 0.22;
+                    ctx.fillRect(lx + 5, HUD_H, LANE_WIDTH - 10, GAME_HEIGHT - HUD_H);
+                    ctx.globalAlpha = 1;
+                }
+
+                // Lane dividers
+                ctx.strokeStyle = 'rgba(255,255,255,0.12)';
+                ctx.lineWidth = 1;
+                ctx.beginPath();
+                ctx.moveTo(lx, HUD_H);
+                ctx.lineTo(lx, GAME_HEIGHT);
+                ctx.stroke();
+
+                // Key label at bottom
+                ctx.fillStyle = LANE_COLORS[i];
+                ctx.globalAlpha = 0.6;
+                ctx.font = "bold 14px 'Orbitron'";
+                ctx.textAlign = 'center';
+                ctx.shadowColor = LANE_COLORS[i];
+                ctx.shadowBlur = 6;
+                ctx.fillText(LANE_NAMES[i], lx + LANE_WIDTH / 2, GAME_HEIGHT - 20);
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+            }
+
+            // Hit zone line
+            ctx.strokeStyle = '#ffffff';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#ffffff';
+            ctx.shadowBlur = 15;
+            ctx.beginPath();
+            ctx.moveTo(LANE_LEFT, HIT_Y);
+            ctx.lineTo(LANE_RIGHT, HIT_Y);
+            ctx.stroke();
+
+            // Hit zone targets per lane
+            for (let i = 0; i < LANE_COUNT; i++) {
+                const cx = LANE_LEFT + (i + 0.5) * LANE_WIDTH;
+                ctx.fillStyle = LANE_COLORS[i];
+                ctx.globalAlpha = 0.18;
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                ctx.arc(cx, HIT_Y, NOTE_W / 2 + 10, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.strokeStyle = LANE_COLORS[i];
+                ctx.lineWidth = 3;
+                ctx.shadowColor = LANE_COLORS[i];
+                ctx.shadowBlur = 14;
+                ctx.beginPath();
+                ctx.arc(cx, HIT_Y, NOTE_W / 2 + 4 + laneFlash[i] * 6, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.lineWidth = 1.5;
+                ctx.globalAlpha = 0.75;
+                ctx.beginPath();
+                ctx.arc(cx, HIT_Y, NOTE_W / 2 - 10, 0, Math.PI * 2);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            }
+
+            // Hold note trails behind the note head.
+            for (const note of notes) {
+                if (note.judged || note.durationMs <= 0) continue;
+                const cx = note.x;
+                const headY = Math.max(HIT_Y, note.y);
+                const tailY = Math.max(headY + NOTE_H, note.endY || note.y);
+                const trail = ctx.createLinearGradient(cx, headY, cx, tailY);
+                trail.addColorStop(0, note.color);
+                trail.addColorStop(1, 'rgba(255,255,255,0.08)');
+                ctx.fillStyle = trail;
+                ctx.shadowColor = note.color;
+                ctx.shadowBlur = note.holding ? 24 : 16;
+                ctx.globalAlpha = note.holding ? 0.86 : 0.58;
+                ctx.beginPath();
+                roundedRect(ctx, cx - NOTE_W * 0.26, headY, NOTE_W * 0.52, tailY - headY, 12);
+                ctx.fill();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            }
+
+            // Notes
+            for (const note of notes) {
+                if (note.judged) continue;
+                const cx = note.x;
+                const cy = note.y;
+                ctx.fillStyle = note.color;
+                ctx.shadowColor = note.color;
+                ctx.shadowBlur = 14;
+                // Main note body
+                ctx.beginPath();
+                const nw = NOTE_W;
+                const nh = NOTE_H;
+                ctx.moveTo(cx - nw / 2, cy - nh / 2 + nh * 0.3);
+                ctx.lineTo(cx - nw / 2 + nh * 0.3, cy - nh / 2);
+                ctx.lineTo(cx + nw / 2 - nh * 0.3, cy - nh / 2);
+                ctx.lineTo(cx + nw / 2, cy - nh / 2 + nh * 0.3);
+                ctx.lineTo(cx + nw / 2, cy + nh / 2 - nh * 0.3);
+                ctx.lineTo(cx + nw / 2 - nh * 0.3, cy + nh / 2);
+                ctx.lineTo(cx - nw / 2 + nh * 0.3, cy + nh / 2);
+                ctx.lineTo(cx - nw / 2, cy + nh / 2 - nh * 0.3);
+                ctx.closePath();
+                ctx.fill();
+
+                // Inner glow line
+                ctx.strokeStyle = '#ffffff';
+                ctx.lineWidth = 1.5;
+                ctx.globalAlpha = 0.7;
+                ctx.shadowBlur = 0;
+                ctx.beginPath();
+                ctx.moveTo(cx - nw / 2 + nh * 0.5, cy);
+                ctx.lineTo(cx + nw / 2 - nh * 0.5, cy);
+                ctx.stroke();
+                ctx.globalAlpha = 1;
+                ctx.shadowBlur = 0;
+            }
+
+            if (countdownMs > 0) {
+                drawCountdown();
+            }
+
+            // Particles
+            for (const p of particles) p.draw(ctx);
+
+            // Judgment text
+            if (judgmentTimer > 0) {
+                const scale = 1 + (1 - judgmentTimer / 40) * 0.3;
+                const alpha = Math.min(1, judgmentTimer / 20);
+                ctx.save();
+                ctx.translate(GAME_WIDTH / 2, HIT_Y + 330);
+                ctx.scale(scale, scale);
+                ctx.globalAlpha = alpha;
+                ctx.font = "bold 32px 'Orbitron'";
+                ctx.textAlign = 'center';
+                ctx.fillStyle = judgmentColor;
+                ctx.shadowColor = judgmentColor;
+                ctx.shadowBlur = 20;
+                ctx.fillText(judgmentText, 0, 0);
+                ctx.shadowBlur = 0;
+                ctx.globalAlpha = 1;
+                ctx.restore();
+            }
+
+            ctx.restore(); // end shake
+        }
+
+        function drawCountdown() {
+            const remaining = Math.ceil(countdownMs / 1000);
+            const phase = (countdownMs % 1000) / 1000;
+            const label = countdownMs < 450 ? 'GO!' : String(remaining);
+            const ringRadius = 92 + (1 - phase) * 26;
+
+            ctx.save();
+            ctx.globalCompositeOperation = 'source-over';
+            ctx.fillStyle = 'rgba(0,0,0,0.32)';
+            ctx.fillRect(0, HUD_H, GAME_WIDTH, GAME_HEIGHT - HUD_H);
+            ctx.translate(GAME_WIDTH / 2, GAME_HEIGHT / 2 + 40);
+
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 5;
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 24;
+            ctx.globalAlpha = 0.28 + phase * 0.45;
+            ctx.beginPath();
+            ctx.arc(0, 0, ringRadius, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * phase);
+            ctx.stroke();
+
+            ctx.globalAlpha = 1;
+            ctx.font = "900 92px 'Orbitron'";
+            ctx.textAlign = 'center';
+            ctx.textBaseline = 'middle';
+            ctx.fillStyle = countdownMs < 450 ? '#39ff88' : '#ffffff';
+            ctx.shadowColor = countdownMs < 450 ? '#39ff88' : '#ff00aa';
+            ctx.shadowBlur = 34;
+            ctx.fillText(label, 0, -4);
+
+            ctx.font = "bold 17px 'Orbitron'";
+            ctx.fillStyle = '#ffee00';
+            ctx.shadowColor = '#ffee00';
+            ctx.shadowBlur = 14;
+            ctx.fillText('PREPARE-SE PARA TOCAR', 0, 112);
+            ctx.restore();
+        }
+
+        // ==================== HUD ====================
+        function drawHUD() {
+            ctx.fillStyle = 'rgba(5, 5, 16, 0.88)';
+            ctx.fillRect(0, 0, GAME_WIDTH, HUD_H);
+            ctx.strokeStyle = '#00ffff';
+            ctx.lineWidth = 2;
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 10;
+            ctx.beginPath();
+            ctx.moveTo(0, HUD_H);
+            ctx.lineTo(GAME_WIDTH, HUD_H);
+            ctx.stroke();
+            ctx.shadowBlur = 0;
+
+            // Score (left)
+            ctx.textAlign = 'left';
+            ctx.font = "bold 13px 'Orbitron'";
+            ctx.fillStyle = '#ffee00';
+            ctx.shadowColor = '#ffee00';
+            ctx.shadowBlur = 8;
+            ctx.fillText('PONTOS', 20, 22);
+            ctx.font = "bold 22px 'Orbitron'";
+            ctx.fillStyle = '#ffffff';
+            ctx.shadowColor = '#00ffff';
+            ctx.shadowBlur = 10;
+            ctx.fillText(score, 20, 50);
+
+            // Combo (center)
+            if (combo >= 2) {
+                ctx.textAlign = 'center';
+                const comboScale = 1 + Math.min(combo / 50, 0.5);
+                ctx.save();
+                ctx.translate(GAME_WIDTH / 2, 38);
+                ctx.scale(comboScale, comboScale);
+                ctx.font = "bold 18px 'Orbitron'";
+                ctx.fillStyle = combo >= 20 ? '#ffee00' : combo >= 10 ? '#ff00aa' : '#00ffff';
+                ctx.shadowColor = ctx.fillStyle;
+                ctx.shadowBlur = 15;
+                ctx.fillText(`${combo}x COMBO`, 0, 0);
+                ctx.restore();
+            }
+
+            // Difficulty indicator
+            ctx.textAlign = 'center';
+            ctx.font = "10px 'Orbitron'";
+            ctx.fillStyle = difficulty === 4 ? '#ff0055' : difficulty === 3 ? '#ff8800' : difficulty === 2 ? '#ffee00' : '#39ff88';
+            ctx.shadowBlur = 0;
+            ctx.fillText(['EASY', 'MEDIUM', 'HARD', 'INSANE'][difficulty - 1], GAME_WIDTH / 2, 14);
+
+            // Lives (right)
+            ctx.textAlign = 'right';
+            ctx.font = "bold 13px 'Orbitron'";
+            ctx.fillStyle = '#ff0055';
+            ctx.shadowColor = '#ff0055';
+            ctx.shadowBlur = 8;
+            ctx.fillText('VIDAS', GAME_WIDTH - 20, 22);
+            for (let i = 0; i < MAX_LIVES; i++) {
+                const alive = i < lives;
+                ctx.fillStyle = alive ? '#ff0055' : 'rgba(255,0,85,0.2)';
+                ctx.shadowColor = alive ? '#ff0055' : 'transparent';
+                ctx.shadowBlur = alive ? 8 : 0;
+                ctx.beginPath();
+                const hx = GAME_WIDTH - 32 - i * 22;
+                const hy = 42;
+                // Draw heart-ish shape
+                ctx.moveTo(hx, hy + 4);
+                ctx.bezierCurveTo(hx - 6, hy - 4, hx - 10, hy + 6, hx, hy + 14);
+                ctx.bezierCurveTo(hx + 10, hy + 6, hx + 6, hy - 4, hx, hy + 4);
+                ctx.fill();
+            }
+            ctx.shadowBlur = 0;
+        }
+
+        // ==================== MAIN LOOP ====================
+        let lastTime = 0;
+        function gameLoop(ts) {
+            requestAnimationFrame(gameLoop);
+            if (!lastTime) lastTime = ts;
+            const dt = Math.min(50, ts - lastTime);
+            lastTime = ts;
+            const scale = dt / 16.667;
+
+            if (gameState === 'PLAYING') {
+                update(dt, scale);
+                render();
+                drawHUD();
+            }
+        }
+
+        // ==================== GAME FLOW ====================
+        function initGame() {
+            SoundEngine.init();
+            SoundEngine.playStart();
+
+            score = 0;
+            combo = 0;
+            maxCombo = 0;
+            lives = MAX_LIVES;
+            notes = [];
+            particles = [];
+            laneFlash = [0, 0, 0, 0];
+            judgmentFlash = 0;
+            judgmentTimer = 0;
+            shakeTimer = 0;
+            gameTime = 0;
+            difficulty = 1;
+            spawnedSteps = new Set();
+            lastLeadLane = -1;
+            repeatLaneCount = 0;
+            totalNotes = 0;
+            hitNotes = 0;
+            perfectNotes = 0;
+            goodNotes = 0;
+            lowNotes = 0;
+            missNotes = 0;
+            noteSpeed = NOTE_SPEED;
+            countdownMs = COUNTDOWN_MS;
+            musicStarted = false;
+
+            gameState = 'PLAYING';
+            uiLayer.classList.add('hidden');
+            startScreen.classList.add('hidden');
+            gameOverScreen.classList.add('hidden');
+            gameOverTitle.classList.remove('shake-constant');
+
+        }
+
+        function endGame() {
+            gameState = 'GAMEOVER';
+            SoundEngine.stopAll(); //silencia tudo imediatamente
+            SoundEngine.playGameOver();
+
+            if (score > bestScore) {
+                bestScore = score;
+                localStorage.setItem(BEST_KEY, String(bestScore));
+            }
+
+            const accuracy = totalNotes > 0 ? Math.round((hitNotes / totalNotes) * 100) : 0;
+
+            finalScoreEl.innerText = score;
+            finalAccuracyEl.innerText = `PRECISÃO: ${accuracy}%`;
+            finalMaxComboEl.innerText = `COMBO MÁXIMO: ${maxCombo}`;
+            finalPerfectsEl.innerText = `PERFECT: ${perfectNotes}`;
+            finalGoodsEl.innerText = `GOOD: ${goodNotes}`;
+            finalLowsEl.innerText = `LOW: ${lowNotes}`;
+            bestScoreEl.innerText = `MELHOR: ${bestScore}`;
+
+            uiLayer.classList.remove('hidden');
+            gameOverScreen.classList.remove('hidden');
+            uiLayer.style.background = 'rgba(20, 0, 0, 0.85)';
+            gameOverTitle.classList.add('shake-constant');
+        }
+
+        // ==================== BUTTONS ====================
+        document.getElementById('start-btn').addEventListener('click', initGame);
+        document.getElementById('restart-btn').addEventListener('click', initGame);
+        startBestEl.innerText = `MELHOR: ${bestScore}`;
+
+        document.getElementById('home-btn').addEventListener('click', () => {
+            window.location.href = '../index.html';
+        });
+
+        let isMuted = false;
+        const muteBtn = document.getElementById('mute-btn');
+        muteBtn.addEventListener('click', () => {
+            isMuted = !isMuted;
+            SoundEngine.setMuted(isMuted);
+            muteBtn.innerText = isMuted ? '🔇' : '🔊';
+        });
+
+        const fullscreenBtn = document.getElementById('fullscreen-btn');
+        const fullscreenTarget = document.documentElement;
+
+        function isNativeFullscreen() {
+            return !!(document.fullscreenElement || document.webkitFullscreenElement);
+        }
+
+        function updateFullscreenIcon() {
+            const active = isNativeFullscreen() || document.body.classList.contains('pseudo-fullscreen');
+            fullscreenBtn.innerText = active ? '⤢' : '⛶';
+        }
+
+        function toggleFullscreen() {
+            const canRequest = fullscreenTarget.requestFullscreen || fullscreenTarget.webkitRequestFullscreen;
+            if (canRequest) {
+                if (!isNativeFullscreen()) {
+                    (fullscreenTarget.requestFullscreen ? fullscreenTarget.requestFullscreen() : fullscreenTarget.webkitRequestFullscreen());
+                } else {
+                    (document.exitFullscreen ? document.exitFullscreen() : document.webkitExitFullscreen());
+                }
+            } else {
+                document.body.classList.toggle('pseudo-fullscreen');
+                updateFullscreenIcon();
+            }
+        }
+
+        fullscreenBtn.addEventListener('click', toggleFullscreen);
+        document.addEventListener('fullscreenchange', updateFullscreenIcon);
+        document.addEventListener('webkitfullscreenchange', updateFullscreenIcon);
+
+        window.__debug = () => ({
+            score, combo, lives, gameState,
+            difficulty,
+            notesAlive: notes.filter(n => !n.judged).length,
+            totalNotes, hitNotes, perfectNotes, goodNotes, lowNotes, missNotes,
+            gameTime: gameTime.toFixed(1) + 's'
+        });
+
+        gameLoop(performance.now());
+    </script>
+</body>
+</html>
