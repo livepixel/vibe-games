@@ -6,6 +6,7 @@
     <title>Neon Rythm - Vibe Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -130,10 +131,10 @@
 
         <div id="ui-layer">
             <div id="top-controls">
-                <button id="home-btn" class="icon-btn" title="Voltar ao início">🏠</button>
+                <button id="home-btn" class="icon-btn" title="Voltar ao início"><i class="fa-solid fa-house" aria-hidden="true"></i></button>
                 <div class="top-controls-right">
-                    <button id="mute-btn" class="icon-btn" title="Som">🔊</button>
-                    <button id="fullscreen-btn" class="icon-btn" title="Tela cheia">⛶</button>
+                    <button id="mute-btn" class="icon-btn" title="Som"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+                    <button id="fullscreen-btn" class="icon-btn" title="Tela cheia"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
                 </div>
             </div>
 
@@ -142,7 +143,7 @@
                 <p class="mb-1 text-gray-300 text-sm tracking-widest text-center">D F J K — ATIRE AS NOTAS NO RITMO</p>
                 <p class="mb-1 text-gray-400 text-xs tracking-widest text-center">TOQUE AS FAIXAS NO CELULAR</p>
                 <p class="mb-1 text-gray-400 text-xs tracking-widest text-center">NOTAS COM RASTRO: PRESSIONE E SEGURE</p>
-                <p class="mb-6 text-red-400 text-xs tracking-widest text-center">⚠ PERCA 5 NOTAS = GAME OVER ⚠</p>
+                <p class="mb-6 text-red-400 text-xs tracking-widest text-center"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> PERCA 5 NOTAS = GAME OVER <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></p>
                 <p id="start-best" class="mb-8 text-yellow-300 text-xs tracking-widest text-center">MELHOR: 0</p>
                 <button id="start-btn" class="btn-neon">START GAME</button>
                 <div class="mt-6 flex gap-3 text-xs text-gray-500">
@@ -1487,7 +1488,7 @@
         muteBtn.addEventListener('click', () => {
             isMuted = !isMuted;
             SoundEngine.setMuted(isMuted);
-            muteBtn.innerText = isMuted ? '🔇' : '🔊';
+            muteBtn.querySelector('i').className = isMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
         });
 
         const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -1499,7 +1500,7 @@
 
         function updateFullscreenIcon() {
             const active = isNativeFullscreen() || document.body.classList.contains('pseudo-fullscreen');
-            fullscreenBtn.innerText = active ? '⤢' : '⛶';
+            fullscreenBtn.querySelector('i').className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
         }
 
         function toggleFullscreen() {

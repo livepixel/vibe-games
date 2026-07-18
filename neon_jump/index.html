@@ -6,6 +6,7 @@
     <title>Neon Jump - Vibe Games</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.2/css/all.min.css">
     <style>
         body {
             margin: 0;
@@ -170,17 +171,17 @@
 
         <div id="ui-layer">
             <div id="top-controls">
-                <button id="home-btn" class="icon-btn" title="Voltar ao início">🏠</button>
+                <button id="home-btn" class="icon-btn" title="Voltar ao início"><i class="fa-solid fa-house" aria-hidden="true"></i></button>
                 <div class="top-controls-right">
-                    <button id="mute-btn" class="icon-btn" title="Ativar/desativar som">🔊</button>
-                    <button id="fullscreen-btn" class="icon-btn" title="Tela cheia">⛶</button>
+                    <button id="mute-btn" class="icon-btn" title="Ativar/desativar som"><i class="fa-solid fa-volume-high" aria-hidden="true"></i></button>
+                    <button id="fullscreen-btn" class="icon-btn" title="Tela cheia"><i class="fa-solid fa-expand" aria-hidden="true"></i></button>
                 </div>
             </div>
 
             <div id="start-screen" class="flex flex-col items-center justify-center w-full h-full px-6">
                 <h1 class="text-5xl font-black mb-2 text-glow-cyan text-center">NEON<br>JUMP</h1>
                 <p class="mb-1 text-gray-300 text-sm tracking-widest text-center">SETAS/A-D OU ARRASTE PARA SE MOVER</p>
-                <p class="mb-6 text-red-400 text-xs tracking-widest text-center">⚠ NÃO CAIA DA TELA ⚠</p>
+                <p class="mb-6 text-red-400 text-xs tracking-widest text-center"><i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i> NÃO CAIA DA TELA <i class="fa-solid fa-triangle-exclamation" aria-hidden="true"></i></p>
                 <p id="start-best" class="mb-8 text-yellow-300 text-xs tracking-widest text-center">MELHOR: 0m</p>
                 <button id="start-btn" class="btn-neon">START GAME</button>
             </div>
@@ -1031,7 +1032,7 @@
         muteBtn.addEventListener('click', () => {
             isMuted = !isMuted;
             SoundEngine.setMuted(isMuted);
-            muteBtn.innerText = isMuted ? '🔇' : '🔊';
+            muteBtn.querySelector('i').className = isMuted ? 'fa-solid fa-volume-xmark' : 'fa-solid fa-volume-high';
         });
 
         const fullscreenBtn = document.getElementById('fullscreen-btn');
@@ -1043,7 +1044,7 @@
 
         function updateFullscreenIcon() {
             const active = isNativeFullscreen() || document.body.classList.contains('pseudo-fullscreen');
-            fullscreenBtn.innerText = active ? '⤢' : '⛶';
+            fullscreenBtn.querySelector('i').className = active ? 'fa-solid fa-compress' : 'fa-solid fa-expand';
         }
 
         function toggleFullscreen() {
